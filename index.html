@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>One Control</title>
+</head>
+<body>
+<div id="text"></div>
+<input type="text" id="field">
+<script>
+function printLetterByLetter(destination, message, speed, callback){
+    var i = 0
+    var interval = setInterval(function() {
+      document.getElementById(destination).innerHTML += message.charAt(i)
+      window.scrollTo(0,document.body.scrollHeight);
+      i++
+      if (i > message.length) {
+        document.getElementById(destination).innerHTML += '<br>'
+        window.scrollTo(0,document.body.scrollHeight);
+        clearInterval(interval)
+        callback()
+      }
+    }, speed)
+}
+
+var stage = 0
+var answer = ''
+var answers = ['copy', 'affirm', '1', 'e', '27', '']
+var given = []
+
+function onEndStage() {
+  if(answer.toLowerCase().indexOf(answers[stage]) !== -1) {
+    ++stage
+    given.push(answer)
+  }
+  if(answer == '')
+    answer = '...'
+  document.getElementById('text').innerHTML += ' > ' + answer + '<br>'
+
+  answer = ''
+  document.getElementById('field').disabled = false
+
+  stages[stage]()
+}
+
+var stages = [
+  function() {
+    printLetterByLetter('text', 'Charlie Tango Romeo Lima, this is the United States Coast Guard, do you copy?', 100, onEndStage)
+  }, function() {
+    printLetterByLetter('text', 'This is One Control, responding to your distress signal', 100, function() {
+      printLetterByLetter('text', 'I understand that there\'s a single pilot on the plane?', 100, onEndStage)
+    })
+  }, function() {
+    printLetterByLetter('text', 'How many souls on board?', 100, onEndStage)
+  }, function() {
+    printLetterByLetter('text', 'There are ' + (given[2].match(/\d+/)[0]) + ' souls on board.', 100, function() {
+      printLetterByLetter('text', 'We\'ll be prepared for your landing.', 100, function() {
+        printLetterByLetter('text', 'Is there any other request you would like to make?', 100, onEndStage)
+      })
+    })
+  }, function() {
+    printLetterByLetter('text', 'Charlie Tango Romeo Lima, your request has been granted,', 100, function() {
+      printLetterByLetter('text', 'proceed to runway 27L.', 100, onEndStage)
+    })
+  }, function() {
+    printLetterByLetter('text', '...', 2000, function() {
+      printLetterByLetter('text', '...', 2000, function() {
+        printLetterByLetter('text', '...', 2000, onEndStage)
+      })
+    })
+  }, function() {
+    printLetterByLetter('text', 'Woohoo! Great landing! Make sure to pass by the control tower to get some coffee', 100, function() {
+      setTimeout(function() {
+        // https://www.dreamstime.com/cup-coffee-public-domain-image-free-88328541
+        document.getElementById('text').innerHTML += '<img src="coffee.jpg">'
+        window.scrollTo(0,document.body.scrollHeight);
+      }, 1000)
+    })
+  }
+]
+
+const field = document.getElementById('field')
+field.addEventListener('keyup', function(event) {
+  if(event.key === 'Enter') {
+    answer = field.value
+    field.value = ''
+    field.disabled = true
+  }
+})
+
+stages[0]()
+</script>
+</body>
+</html>
